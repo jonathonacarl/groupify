@@ -14,10 +14,8 @@ let main argv =
 
     match ast with
     | Some ast -> 
-        printfn "%A" (prettyprint ast)
-        printfn "%A" (closure ast)
-        printfn "%A" (identity ast)
-        printfn "%A" (inverses ast)
+        let str, res = evaluator ast
+        printfn $"{str}"
         0
     | None -> 
         printfn "Invalid program."

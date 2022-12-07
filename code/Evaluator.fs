@@ -16,14 +16,32 @@ let rec cartesianProduct xs ys =
         zs @ cartesianProduct xes ys 
 
 (*
+ * Note: the length of this list should be n^3 since for each
+ * slot in the 3-tuple, we have n choices.
+ *)
+let cartesianTriples xs ys zs =
+    let pairs = cartesianProduct xs ys
+    let triples = []
+
+    let rec helper zs triples =
+        match zs, triples with
+        | [], _ -> triples
+        | z::zes, _ ->
+            let tripsSoFar = pairs |> List.map(fun(x,y) -> (x,y,z))
+            let newTrips = tripsSoFar@triples
+            helper zes newTrips
+
+    helper zs triples
+
+(*
  * Verify closure of elements in the
  * provided set under given binary operation.
  *)
 let closure e =
 
     match e with 
-    | Num(c) -> false
-    | Operation(a,b,c) -> false
+    | Num(c) -> (None,None,false)
+    | Operation(a,b,c) -> (None,None,false)
     | Group(Operation(plus,m,numToModBy),nums) ->
 
         let newNums = nums |> List.map (fun (Num(z)) -> z)
@@ -34,13 +52,14 @@ let closure e =
          *)
         let rec closureHelper pairs nums =
             match pairs with 
-            | [] -> true
+            | [] -> (None, None, true)
             | (n,m)::pairs2 -> 
-                let res = (n+m) % numToModBy
-                if (nums |> List.contains res) then
+                let res1 = (n+m) % numToModBy
+                let res2 = (m+n) % numToModBy
+                if (nums |> List.contains res1 && nums |> List.contains res2) then
                     closureHelper pairs2 nums
                 else 
-                    false 
+                    (Some(n),Some(m),false)
         closureHelper pairs newNums
 
     | Group(_, _) -> failwith "Not Implemented"
@@ -90,35 +109,41 @@ let identity e =
 let inverses e = 
 
     match e with 
-    | Num(c) -> false
-    | Operation(a,b,c) -> false
+    | Num(c) -> (None,false)
+    | Operation(a,b,c) -> (None,false)
     | Group(Operation(plus,m,numToModBy),nums) ->
 
         let _,id = identity e
         let newNums = nums |> List.map (fun (Num(z)) -> z)
+        let invList = []
 
-        let rec inversesUtil soFar =
+        let rec inversesUtil soFar invList =
             match soFar with
-            | [] -> true
+            | [] -> (Some(invList), true)
             | x::xs ->
                 let pairs = cartesianProduct [x] newNums
 
                 let rec inversesHelper pairs =
                     match pairs with 
-                    | [] -> false
+                    | [] -> ([(x,x)], false)
                     | (n,m)::pairs2 ->
                         let res = (n+m) % numToModBy
                         if res = id then
-                            true
+                            if invList |> List.contains (n,m) || invList |> List.contains (m,n) then
+                                (invList, true)
+                            else
+                                ((n,m)::invList,true)
                         else 
                             inversesHelper pairs2
             
-                if inversesHelper pairs then
-                    inversesUtil xs
+                let newInvList,res = inversesHelper pairs
+                if res then
+                    inversesUtil xs newInvList
                 else
-                    false
+                    let p1,_ = newInvList[0]
+                    (Some([p1,p1]), false)
 
-        inversesUtil newNums
+        inversesUtil newNums invList
 
     | Group(_, _) -> failwith "Not Implemented"
 
@@ -126,9 +151,30 @@ let inverses e =
  * Verify associativity holds for any triplet in the
  * provided set under given binary operation.
  *)
-// let associativity e =
-//     true
-// (a + b) + c = a + (b + c)
+let associativity e =
+    
+    match e with 
+    | Num(c) -> false
+    | Operation(a,b,c) -> false
+    | Group(Operation(plus,m,numToModBy),nums) ->
+
+        let newNums = nums |> List.map (fun (Num(z)) -> z)
+        let triples = cartesianTriples newNums newNums newNums
+
+        let rec assocUtil triples = 
+            match triples with
+            | [] -> true
+            | (a,b,c)::ts ->
+                let first = (((a + b) % numToModBy) + c) % numToModBy
+                let second = (a + ((b + c) % numToModBy)) % numToModBy
+                if (first <> second) then
+                    false
+                else
+                    assocUtil ts
+
+        assocUtil triples
+    
+    | Group(_, _) -> failwith "Not Implemented"
 
 (*
  * Verify all conditions hold for a set of elements
@@ -138,6 +184,62 @@ let inverses e =
  * 3. Existence of Inverses
  * 4. Associativity under operation holds
  *)
-// let evaluator = 
+let evaluator e = 
 
-    // closure && identity && inverses && associativity
+    match e with 
+    | Num(c) -> ("",false)
+    | Operation(a,b,c) -> ("",false)
+    | Group(Operation(plus,m,numToModBy),nums) ->
+
+        let e1,e2,closed = closure e
+        let identity, id = identity e
+        let invElems,inverse = inverses e
+        let associative = associativity e
+
+        let res = [(closed, "closed"); (identity, "identity"); (inverse, "inverse"); (associative, "associative")]
+        let str = ""
+        
+        let rec evalUtil res str = 
+            match res, str with
+            | [], "" ->
+                match invElems with
+                | Some(invElems) ->
+                    let ret = $"%A{nums} is a group under {plus + m + string numToModBy} because\n 
+                    It is closed under {plus + m + string numToModBy}\n
+                    The identity element is {id}\n
+                    Every element has an inverse: {invElems} \n
+                    {plus + m + string numToModBy} is associative."
+                    (ret, true)
+                | _ -> failwith "inverses not implemented correctly"
+            | [], _ -> (str,false)
+            | (x,s)::xs, _ ->
+                if not x then
+                    let toAdd = if str.Length = 0 then $"%A{nums} is not a group under {plus + m + string numToModBy} because:\n" else ""
+                    match s with
+                    | "closed" ->
+                        match e1,e2 with
+                        | Some(e1), Some(e2) ->
+                            let n1 = e1
+                            let n2 = e2
+                            let newStr = str + toAdd + $"It is not closed. Notice that {n1},{n2} are in %A{nums}, but {n1} + {n2} %% {numToModBy} = {n1 + n2 % numToModBy} is not in %A{nums}.\n"
+                            evalUtil xs newStr
+                        | _, _ -> failwith "invalid closure implementation."
+                    | "identity" ->
+                        let newStr = str + toAdd + "It contains no identity element.\n"
+                        evalUtil xs newStr
+                    | "inverse" ->
+                        match invElems with
+                        | Some(invElems) ->
+                            let elem = invElems[0]
+                            let newStr = str + toAdd + $"{elem} is an element with no inverse.\n"
+                            evalUtil xs newStr
+                        | _ -> failwith "invalid inverse implementation."
+                    | "associative" ->
+                        let newStr = str + toAdd + "is not associative.\n"
+                        evalUtil xs newStr
+                    | _ -> failwith "invalid result array"
+                else
+                    evalUtil xs str
+
+        evalUtil res str
+    | Group(_, _) -> failwith "Not Implemented"
