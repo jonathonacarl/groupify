@@ -199,6 +199,11 @@ let evaluator e =
         let res = [(closed, "closed"); (identity, "identity"); (inverse, "inverse"); (associative, "associative")]
         let str = ""
         
+
+        (*
+         * Print diagnostic messages to std-out, informing user why a given set and operation
+         * is (not) a group, along with useful information about tests performed.
+         *)
         let rec evalUtil res str = 
             match res, str with
             | [], "" ->
@@ -221,7 +226,7 @@ let evaluator e =
                         | Some(e1), Some(e2) ->
                             let n1 = e1
                             let n2 = e2
-                            let newStr = str + toAdd + $"It is not closed. Notice that {n1},{n2} are in %A{nums}, but {n1} + {n2} %% {numToModBy} = {n1 + n2 % numToModBy} is not in %A{nums}.\n"
+                            let newStr = str + toAdd + $"It is not closed. Notice that {n1},{n2} are in %A{nums}, but {n1} + {n2} %% {numToModBy} = {(n1 + n2) % numToModBy} is not in %A{nums}.\n"
                             evalUtil xs newStr
                         | _, _ -> failwith "invalid closure implementation."
                     | "identity" ->
@@ -230,12 +235,12 @@ let evaluator e =
                     | "inverse" ->
                         match invElems with
                         | Some(invElems) ->
-                            let elem = invElems[0]
+                            let elem = fst(invElems[0])
                             let newStr = str + toAdd + $"{elem} is an element with no inverse.\n"
                             evalUtil xs newStr
                         | _ -> failwith "invalid inverse implementation."
                     | "associative" ->
-                        let newStr = str + toAdd + "is not associative.\n"
+                        let newStr = str + toAdd + "It is not associative.\n"
                         evalUtil xs newStr
                     | _ -> failwith "invalid result array"
                 else

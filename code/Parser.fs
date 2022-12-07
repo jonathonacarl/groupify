@@ -11,7 +11,7 @@ let pexpr,pexprImpl = recparser()
 (*
  * Parse a single number.
  *)
-let pnum = pmany1 pdigit |>> stringify |>> int |>> Num <!> "number"
+let pnum = (pseq (pchar '-') (pmany1 pdigit) (fun(negative, nums) -> negative::nums) <|> (pmany1 pdigit)) |>> stringify |>> int |>> Num <!> "number"
 
 (*
  * Helper parser to read first two signs of operation.
@@ -29,7 +29,7 @@ let poper = pseq foper (pdigit) (fun (fop, numOp) ->
 (*
  * Parse the set of numbers.
  *)
-let pset = pbetween (pchar '{') (pchar '}') (pmany1 (pleft (pnum) (pchar ','))) <!> "set"
+let pset = pbetween (pchar '{') (pchar '}') (pseq (pmany1 (pleft (pnum) (pchar ','))) (pnum) (fun (nums, num) -> num::nums)) <!> "set"
 
 (*
  * Parse the set and operation.
