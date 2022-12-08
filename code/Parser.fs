@@ -8,27 +8,27 @@ open AST
  *)
 let pexpr,pexprImpl = recparser()
 
-let pnegative = pseq (pchar '-') (pmany1 pdigit) (fun(negative, nums) -> negative::nums)
+let pnegative = pseq (pchar '-') (pmany1 pdigit) (fun(negative, nums) -> negative::nums) <!> "pnegative"
 
-let ppositive = pmany1 pdigit
+let ppositive = pmany1 pdigit <!> "ppositive"
 
-let pintegers = pchar 'Z' |>> string |>> Integers
+let pintegers = pchar 'Z' |>> string |>> Integers <!> "pintegers"
+ 
+let prationals = pchar 'Q' |>> string |>> Rationals <!>"prationals"
 
-let prationals = pchar 'Q' |>> string |>> Rationals
+let preal = pchar 'R' |>> string |>> Reals <!> "preal"
 
-let preal = pchar 'R' |>> string |>> Reals
-
-let pcomplex = pchar 'C' |>> string |>> Complex
+let pcomplex = pchar 'C' |>> string |>> Complex <!> "pcomplex"
 
 (*
  * Parse a single number, either negative or positive.
  *)
-let pnum = pnegative <|> ppositive |>> stringify |>> float |>> Num <!> "number"
+let pnum = pnegative <|> ppositive |>> stringify |>> float |>> Num <!> "pnum"
 
 (*
  * Helper parser to read first two signs of addition modulo operation.
  *)
-let fmodoper = pseq (pchar '+') (pchar '%') (fun (fop,sop) -> string fop,string sop) <!> "first operation"
+let fmodoper = pseq (pchar '+') (pchar '%') (fun (fop,sop) -> string fop,string sop) <!> "fmodoper"
 
 (*
  * Addition modulo operation parser.
@@ -36,24 +36,24 @@ let fmodoper = pseq (pchar '+') (pchar '%') (fun (fop,sop) -> string fop,string 
 let modoper = pseq fmodoper (pdigit) (fun (fop, numOp) -> 
                                     let a,b = fop
                                     Operation(a + b + string(numOp)))
-                                     <!> "operation"
+                                     <!> "modoper"
 
-let aoper = pchar '+' |>> string |>> Operation
+let aoper = pchar '+' |>> string |>> Operation <!> "aoper"
 
-let soper = pchar '-' |>> string |>> Operation
+let soper = pchar '-' |>> string |>> Operation <!> "soper"
 
-let moper = pchar '*' |>> string |>> Operation
+let moper = pchar '*' |>> string |>> Operation <!> "moper"
 
-let doper = pchar '/' |>> string |>> Operation
+let doper = pchar '/' |>> string |>> Operation <!> "doper"
 
-let poper = modoper <|> aoper <|> soper <|> moper <|> doper
+let poper = modoper <|> aoper <|> soper <|> moper <|> doper <!> "poper"
 
-let pnums = (pseq (pmany1 (pleft (pnum) (pchar ','))) (pnum) (fun (nums, num) -> num::nums)) |>> Numbers
+let pnums = (pseq (pmany1 (pleft (pnum) (pchar ','))) (pnum) (fun (nums, num) -> num::nums)) |>> Numbers <!> "pnums"
 
 (*
- * Parse the set of numbers.
+ * Parse the set.
  *)
-let pset = pbetween (pchar '{') (pchar '}') (pnums <|> pintegers <|> prationals <|> preal <|> pcomplex ) <!> "set"
+let pset = pbetween (pchar '{') (pchar '}') (pnums) <|> (pintegers <|> prationals <|> preal <|> pcomplex) <!> "set"
 
 (*
  * Parse the set and operation.

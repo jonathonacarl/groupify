@@ -2,6 +2,7 @@ module Evaluator
 
 open AST
 open Parser
+open Combinator
 
 (*
  * Helper method that generates tuples of all
@@ -44,7 +45,22 @@ let closure e op =
     | Element(_) -> (None,None,false)
     | Operation(_) -> (None,None,false)
     | Group(Operation(_),nums) ->
-        let newNums = nums |> List.map (fun (Num(z)) -> z)
+
+        let newNums = 
+            match nums with 
+            | Integers(_) -> []
+            | Rationals(_) -> []
+            | Reals(_) -> []
+            | Complex(_) -> []
+            | Numbers(ns) -> ns |> List.map (fun(z) -> 
+                    match z with 
+                    | Num(n) -> float n
+                    | Operation(_) -> 0.0
+                    | Element(_) -> 0.0
+                    | Group(_,_) -> 0.0
+                )
+            | Elements(e) -> []
+
         let pairs = cartesianProduct newNums newNums 
         (*
          * Helper method that returns true iff the combination
@@ -62,7 +78,7 @@ let closure e op =
                     | "*" -> n*m, m*n
                     | "/" -> n/m, m/n
                     | _ ->
-                        let numToModBy = float(op[2])
+                        let numToModBy = float(string(op[2]))
                         (n+m) % numToModBy, (m+n) % numToModBy
 
                 if (nums |> List.contains res1) then
@@ -89,7 +105,21 @@ let identity e op =
     | Operation(_) -> (false, float -1)
     | Group(Operation(_),nums) ->
         
-        let newNums = nums |> List.map (fun (Num(z)) -> z)
+        let newNums = 
+            match nums with 
+            | Integers(_) -> []
+            | Rationals(_) -> []
+            | Reals(_) -> []
+            | Complex(_) -> []
+            | Numbers(ns) -> ns |> List.map (fun(z) -> 
+                    match z with 
+                    | Num(n) -> float n
+                    | Operation(_) -> 0.0
+                    | Element(_) -> 0.0
+                    | Group(_,_) -> 0.0
+                )
+            | Elements(e) -> []
+
 
         let rec idUtil soFar =
             match soFar with
@@ -108,7 +138,7 @@ let identity e op =
                             | "*" -> n*m, m*n
                             | "/" -> n/m, m/n
                             | _ ->
-                                let numToModBy = float(op[2])
+                                let numToModBy = float(string(op[2]))
                                 (n+m) % numToModBy, (m+n) % numToModBy
                         
                         if (id = n && res1 = m && res2 = m) || (id = m && res1 = n && res2 = n) then
@@ -137,7 +167,21 @@ let inverses e op =
     | Group(Operation(_),nums) ->
 
         let _,id = identity e op
-        let newNums = nums |> List.map (fun (Num(z)) -> z)
+        let newNums = 
+            match nums with 
+            | Integers(_) -> []
+            | Rationals(_) -> []
+            | Reals(_) -> []
+            | Complex(_) -> []
+            | Numbers(ns) -> ns |> List.map (fun(z) -> 
+                    match z with 
+                    | Num(n) -> float n
+                    | Operation(_) -> 0.0
+                    | Element(_) -> 0.0
+                    | Group(_,_) -> 0.0
+                )
+            | Elements(e) -> []
+
         let invList = []
 
         let rec inversesUtil soFar invList =
@@ -158,7 +202,7 @@ let inverses e op =
                             | "*" -> n*m
                             | "/" -> n/m
                             | _ ->
-                                let numToModBy = float(op[2])
+                                let numToModBy = float(string(op[2]))
                                 (n+m) % numToModBy
 
                         if res = id then
@@ -194,7 +238,21 @@ let associativity e op =
     | Operation(_) -> false
     | Group(Operation(_),nums) ->
 
-        let newNums = nums |> List.map (fun (Num(z)) -> z)
+        let newNums = 
+            match nums with 
+            | Integers(_) -> []
+            | Rationals(_) -> []
+            | Reals(_) -> []
+            | Complex(_) -> []
+            | Numbers(ns) -> ns |> List.map (fun(z) -> 
+                    match z with 
+                    | Num(n) -> float n
+                    | Operation(_) -> 0.0
+                    | Element(_) -> 0.0
+                    | Group(_,_) -> 0.0
+                )
+            | Elements(e) -> []
+
         let triples = cartesianTriples newNums newNums newNums
 
         let rec assocUtil triples = 
@@ -209,7 +267,7 @@ let associativity e op =
                     | "*" -> (a*b) * c, a * (b*c)
                     | "/" -> (a/b) / c, a / (b/c)
                     | _ ->
-                        let numToModBy = float(op[2])
+                        let numToModBy = float(string(op[2]))
                         (((a + b) % numToModBy) + c) % numToModBy, (a + ((b + c) % numToModBy)) % numToModBy
                 if (first <> second) then
                     false
@@ -286,17 +344,11 @@ let evaluator e =
             (ret, true)
         | Numbers(n) ->
             
-
-
-            let e1, e2, closed = closure e op
-            let isIdentity, id = identity e op
-            let invElems, inverse = inverses e op
-            let associative = associativity e op
+            let (e1, e2, closed), (isIdentity, id), (invElems, inverse), associative = doEvaluation e op
             
             let res = [(closed, "closed"); (isIdentity, "identity"); (inverse, "inverse"); (associative, "associative")]
-            let str = ""
 
-            let rec numberSetUtil e =
+            let rec numberSetUtil e res str =
 
                 match e with 
                 | Num(_) -> ("",false)
@@ -331,38 +383,49 @@ let evaluator e =
                                         | "*" -> $"{n1} * {n2} = {n1 * n2}"
                                         | "/" -> $"{n1} / {n2} = {n1 / n2}"
                                         | _ ->
-                                            let numToModBy = float(op[2])
+                                            let numToModBy = float(string(op[2]))
                                             $"({n1} + {n2}) %% {numToModBy} = {(n1 + n2) % numToModBy}"
                                     let newStr = str + toAdd + $"It is not closed. Notice that {n1},{n2} are in %A{nums}, but {sFormat} is not in %A{nums}.\n"
-                                    numberSetUtil xs newStr
+                                    numberSetUtil e xs newStr
                                 | _, _ -> failwith "invalid closure implementation."
                             | "identity" ->
                                 let newStr = str + toAdd + "It contains no identity element.\n"
-                                numberSetUtil xs newStr
+                                numberSetUtil e xs newStr
                             | "inverse" ->
                                 match invElems with
                                 | Some(invElems) ->
                                     let elem = fst(invElems[0])
                                     let newStr = str + toAdd + $"{elem} is an element with no inverse.\n"
-                                    numberSetUtil xs newStr
+                                    numberSetUtil e xs newStr
                                 | _ -> failwith "invalid inverse implementation."
                             | "associative" ->
                                 let newStr = str + toAdd + "It is not associative."
-                                evalUtil xs newStr
+                                numberSetUtil e xs newStr
                             | _ -> failwith "invalid result array"
                         else
-                            numberSetUtil xs str
-                    | Group (Element (_), _) -> failwith "Not Implemented"
+                            numberSetUtil e xs str
+                | Group(_, _) -> failwith "Not Implemented"
 
-            numberSetUtil e
+            numberSetUtil e res ""
 
-        | Elements(e) ->
-            let ret = $"%A{e} is a group under {op} because\n 
+        | Elements(e2) ->
+            let ret = $"%A{e2} is a group under {op} because\n 
                 It is closed under {op}\n
                 The identity element is {id}\n
                 Every element has an inverse. \n
                 {op} is associative."
             (ret, true)
+    
+    match e with
+    | Num(_) -> ("", false)
+    | Element(_) -> ("", false)
+    | Operation(_) -> ("", false)
+    | Group(op, set) ->
+        let oper = 
+            match op with
+            | Num(_) -> ""
+            | Operation(o) -> o
+            | Element(_) -> ""
+            | Group(_) -> ""
 
-    let op, set = e
-    evalUtil op set e
+        evalUtil e set oper

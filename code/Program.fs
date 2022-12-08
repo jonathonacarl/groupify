@@ -13,9 +13,9 @@ let main argv =
     let ast = parse (argv[0])
 
     match ast with
-    | Some ast -> 
+    | Some ast ->
         let str, res = evaluator ast
-        printfn $"{str}"
+        printfn "%A" str
         0
     | None -> 
         printfn "Invalid program."
