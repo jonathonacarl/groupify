@@ -8,28 +8,52 @@ open AST
  *)
 let pexpr,pexprImpl = recparser()
 
-(*
- * Parse a single number.
- *)
-let pnum = (pseq (pchar '-') (pmany1 pdigit) (fun(negative, nums) -> negative::nums) <|> (pmany1 pdigit)) |>> stringify |>> int |>> Num <!> "number"
+let pnegative = pseq (pchar '-') (pmany1 pdigit) (fun(negative, nums) -> negative::nums)
+
+let ppositive = pmany1 pdigit
+
+let pintegers = pchar 'Z' |>> string |>> Integers
+
+let prationals = pchar 'Q' |>> string |>> Rationals
+
+let preal = pchar 'R' |>> string |>> Reals
+
+let pcomplex = pchar 'C' |>> string |>> Complex
 
 (*
- * Helper parser to read first two signs of operation.
+ * Parse a single number, either negative or positive.
  *)
-let foper = pseq (pchar '+') (pchar '%') (fun (fop,sop) -> string fop,string sop) <!> "first operation"
+let pnum = pnegative <|> ppositive |>> stringify |>> float |>> Num <!> "number"
 
 (*
- * Parse the operation.
+ * Helper parser to read first two signs of addition modulo operation.
  *)
-let poper = pseq foper (pdigit) (fun (fop, numOp) -> 
+let fmodoper = pseq (pchar '+') (pchar '%') (fun (fop,sop) -> string fop,string sop) <!> "first operation"
+
+(*
+ * Addition modulo operation parser.
+ *)
+let modoper = pseq fmodoper (pdigit) (fun (fop, numOp) -> 
                                     let a,b = fop
-                                    Operation(a,b,int(string(numOp))))
+                                    Operation(a + b + string(numOp)))
                                      <!> "operation"
+
+let aoper = pchar '+' |>> string |>> Operation
+
+let soper = pchar '-' |>> string |>> Operation
+
+let moper = pchar '*' |>> string |>> Operation
+
+let doper = pchar '/' |>> string |>> Operation
+
+let poper = modoper <|> aoper <|> soper <|> moper <|> doper
+
+let pnums = (pseq (pmany1 (pleft (pnum) (pchar ','))) (pnum) (fun (nums, num) -> num::nums)) |>> Numbers
 
 (*
  * Parse the set of numbers.
  *)
-let pset = pbetween (pchar '{') (pchar '}') (pseq (pmany1 (pleft (pnum) (pchar ','))) (pnum) (fun (nums, num) -> num::nums)) <!> "set"
+let pset = pbetween (pchar '{') (pchar '}') (pnums <|> pintegers <|> prationals <|> preal <|> pcomplex ) <!> "set"
 
 (*
  * Parse the set and operation.
@@ -44,7 +68,7 @@ pexprImpl := pnum <|> poper <|> pgroup <!> "expr"
 (*
  * The complete grammar parser.
  *)
-let grammar = pleft pexpr peof <!> "grammer"
+let grammar = pleft pexpr peof <!> "grammar"
 
 (*
  * Verify valid input string is transformed into the Abstract Syntax Tree.

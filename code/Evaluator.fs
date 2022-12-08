@@ -37,13 +37,13 @@ let cartesianTriples xs ys zs =
  * Verify closure of elements in the
  * provided set under given binary operation.
  *)
-let closure e =
+let closure e op =
 
     match e with 
-    | Num(c) -> (None,None,false)
-    | Operation(a,b,c) -> (None,None,false)
-    | Group(Operation(plus,m,numToModBy),nums) ->
-
+    | Num(_) -> (None,None,false)
+    | Element(_) -> (None,None,false)
+    | Operation(_) -> (None,None,false)
+    | Group(Operation(_),nums) ->
         let newNums = nums |> List.map (fun (Num(z)) -> z)
         let pairs = cartesianProduct newNums newNums 
         (*
@@ -53,11 +53,23 @@ let closure e =
         let rec closureHelper pairs nums =
             match pairs with 
             | [] -> (None, None, true)
-            | (n,m)::pairs2 -> 
-                let res1 = (n+m) % numToModBy
-                let res2 = (m+n) % numToModBy
-                if (nums |> List.contains res1 && nums |> List.contains res2) then
-                    closureHelper pairs2 nums
+            | (n,m)::pairs2 ->
+
+                let res1, res2 = 
+                    match op with
+                    | "+" -> n+m, m+n
+                    | "-" -> n-m, m-n
+                    | "*" -> n*m, m*n
+                    | "/" -> n/m, m/n
+                    | _ ->
+                        let numToModBy = float(op[2])
+                        (n+m) % numToModBy, (m+n) % numToModBy
+
+                if (nums |> List.contains res1) then
+                    if (nums |> List.contains res2) then
+                        closureHelper pairs2 nums
+                    else
+                        (Some(m), Some(n), false)
                 else 
                     (Some(n),Some(m),false)
         closureHelper pairs newNums
@@ -70,26 +82,36 @@ let closure e =
  * provided set under given binary operation.
  *)
 
-let identity e = 
+let identity e op = 
     match e with 
-    | Num(c) -> (false, -1)
-    | Operation(a,b,c) -> (false, -1)
-    | Group(Operation(plus,m,numToModBy),nums) ->
+    | Num(_) -> (false, float -1)
+    | Element(_) -> (false, float -1)
+    | Operation(_) -> (false, float -1)
+    | Group(Operation(_),nums) ->
         
         let newNums = nums |> List.map (fun (Num(z)) -> z)
 
         let rec idUtil soFar =
             match soFar with
-            | [] -> (false, -1)
+            | [] -> (false, float -1)
             | x::xs ->
                 let pairs = cartesianProduct [x] newNums
 
                 let rec identityHelper pairs nums id =
                     match pairs with 
                     | [] -> true
-                    | (n,m)::pairs2 -> 
-                        let res = (n+m) % numToModBy
-                        if (id = n && res = m) || (id = m && res = n) then
+                    | (n,m)::pairs2 ->
+                        let res1, res2 = 
+                            match op with
+                            | "+" -> n+m, m+n
+                            | "-" -> n-m, m-n
+                            | "*" -> n*m, m*n
+                            | "/" -> n/m, m/n
+                            | _ ->
+                                let numToModBy = float(op[2])
+                                (n+m) % numToModBy, (m+n) % numToModBy
+                        
+                        if (id = n && res1 = m && res2 = m) || (id = m && res1 = n && res2 = n) then
                             identityHelper pairs2 nums id
                         else 
                             false  
@@ -106,14 +128,15 @@ let identity e =
  * Verify existence of inverse elements for each element
  * in the provided set under given binary operation.
  *)
-let inverses e = 
+let inverses e op = 
 
     match e with 
-    | Num(c) -> (None,false)
-    | Operation(a,b,c) -> (None,false)
-    | Group(Operation(plus,m,numToModBy),nums) ->
+    | Num(_) -> (None,false)
+    | Element(_) -> (None,false)
+    | Operation(_) -> (None,false)
+    | Group(Operation(_),nums) ->
 
-        let _,id = identity e
+        let _,id = identity e op
         let newNums = nums |> List.map (fun (Num(z)) -> z)
         let invList = []
 
@@ -127,7 +150,17 @@ let inverses e =
                     match pairs with 
                     | [] -> ([(x,x)], false)
                     | (n,m)::pairs2 ->
-                        let res = (n+m) % numToModBy
+
+                        let res = 
+                            match op with
+                            | "+" -> n+m
+                            | "-" -> n-m
+                            | "*" -> n*m
+                            | "/" -> n/m
+                            | _ ->
+                                let numToModBy = float(op[2])
+                                (n+m) % numToModBy
+
                         if res = id then
                             if invList |> List.contains (n,m) || invList |> List.contains (m,n) then
                                 (invList, true)
@@ -137,6 +170,7 @@ let inverses e =
                             inversesHelper pairs2
             
                 let newInvList,res = inversesHelper pairs
+
                 if res then
                     inversesUtil xs newInvList
                 else
@@ -147,16 +181,18 @@ let inverses e =
 
     | Group(_, _) -> failwith "Not Implemented"
 
+
 (*
  * Verify associativity holds for any triplet in the
  * provided set under given binary operation.
  *)
-let associativity e =
+let associativity e op =
     
     match e with 
-    | Num(c) -> false
-    | Operation(a,b,c) -> false
-    | Group(Operation(plus,m,numToModBy),nums) ->
+    | Num(_) -> false
+    | Element(_) -> false
+    | Operation(_) -> false
+    | Group(Operation(_),nums) ->
 
         let newNums = nums |> List.map (fun (Num(z)) -> z)
         let triples = cartesianTriples newNums newNums newNums
@@ -165,8 +201,16 @@ let associativity e =
             match triples with
             | [] -> true
             | (a,b,c)::ts ->
-                let first = (((a + b) % numToModBy) + c) % numToModBy
-                let second = (a + ((b + c) % numToModBy)) % numToModBy
+
+                let first, second = 
+                    match op with
+                    | "+" -> (a+b) + c, a + (b+c)
+                    | "-" -> (a-b) - c, a - (b-c)
+                    | "*" -> (a*b) * c, a * (b*c)
+                    | "/" -> (a/b) / c, a / (b/c)
+                    | _ ->
+                        let numToModBy = float(op[2])
+                        (((a + b) % numToModBy) + c) % numToModBy, (a + ((b + c) % numToModBy)) % numToModBy
                 if (first <> second) then
                     false
                 else
@@ -175,6 +219,26 @@ let associativity e =
         assocUtil triples
     
     | Group(_, _) -> failwith "Not Implemented"
+
+
+let validation e op = 
+    
+    let e1, e2, closed = closure e op
+    let identity, id = identity e op
+    let invElems, inverse = inverses e op
+    let associative = associativity e op
+
+    (e1, e2, closed), (identity, id), (invElems, inverse), (associative)
+
+let doEvaluation e op = 
+    
+    match op with
+        | "+" -> validation e "+"
+        | "-" -> validation e "-"
+        | "*" -> validation e "*"
+        | "/" -> validation e "/"
+        | _ -> validation e op
+
 
 (*
  * Verify all conditions hold for a set of elements
@@ -185,66 +249,120 @@ let associativity e =
  * 4. Associativity under operation holds
  *)
 let evaluator e = 
+    
+    (*
+     * Print diagnostic messages to std-out, informing user why a given set and operation
+     * is (not) a group, along with useful information about tests performed.
+     *)
+    let rec evalUtil e set op = 
+        match set with
+        | Integers(z) ->
+            let ret = $"%A{z} is a group under {op} because\n 
+                It is closed under {op}\n
+                The identity element is 1.\n
+                Every element has an inverse.\n
+                {op} is associative."
+            (ret, true)
+        | Rationals(q) ->
+            let ret = $"%A{q} is a group under {op} because\n 
+                It is closed under {op}\n
+                The identity element is 1.\n
+                Every element has an inverse.\n
+                {op} is associative."
+            (ret, true)
+        | Reals(r) ->
+            let ret = $"%A{r} is a group under {op} because\n 
+                It is closed under {op}\n
+                The identity element is 1.\n
+                Every element has an inverse. \n
+                {op} is associative."
+            (ret, true)
+        | Complex(c) ->
+            let ret = $"%A{c} is a group under {op} because\n 
+                It is closed under {op}\n
+                The identity element is 1 + 0i.\n
+                Every element has an inverse.\n
+                {op} is associative."
+            (ret, true)
+        | Numbers(n) ->
+            
 
-    match e with 
-    | Num(c) -> ("",false)
-    | Operation(a,b,c) -> ("",false)
-    | Group(Operation(plus,m,numToModBy),nums) ->
 
-        let e1,e2,closed = closure e
-        let identity, id = identity e
-        let invElems,inverse = inverses e
-        let associative = associativity e
+            let e1, e2, closed = closure e op
+            let isIdentity, id = identity e op
+            let invElems, inverse = inverses e op
+            let associative = associativity e op
+            
+            let res = [(closed, "closed"); (isIdentity, "identity"); (inverse, "inverse"); (associative, "associative")]
+            let str = ""
 
-        let res = [(closed, "closed"); (identity, "identity"); (inverse, "inverse"); (associative, "associative")]
-        let str = ""
-        
+            let rec numberSetUtil e =
 
-        (*
-         * Print diagnostic messages to std-out, informing user why a given set and operation
-         * is (not) a group, along with useful information about tests performed.
-         *)
-        let rec evalUtil res str = 
-            match res, str with
-            | [], "" ->
-                match invElems with
-                | Some(invElems) ->
-                    let ret = $"%A{nums} is a group under {plus + m + string numToModBy} because\n 
-                    It is closed under {plus + m + string numToModBy}\n
-                    The identity element is {id}\n
-                    Every element has an inverse: {invElems} \n
-                    {plus + m + string numToModBy} is associative."
-                    (ret, true)
-                | _ -> failwith "inverses not implemented correctly"
-            | [], _ -> (str,false)
-            | (x,s)::xs, _ ->
-                if not x then
-                    let toAdd = if str.Length = 0 then $"%A{nums} is not a group under {plus + m + string numToModBy} because:\n" else ""
-                    match s with
-                    | "closed" ->
-                        match e1,e2 with
-                        | Some(e1), Some(e2) ->
-                            let n1 = e1
-                            let n2 = e2
-                            let newStr = str + toAdd + $"It is not closed. Notice that {n1},{n2} are in %A{nums}, but {n1} + {n2} %% {numToModBy} = {(n1 + n2) % numToModBy} is not in %A{nums}.\n"
-                            evalUtil xs newStr
-                        | _, _ -> failwith "invalid closure implementation."
-                    | "identity" ->
-                        let newStr = str + toAdd + "It contains no identity element.\n"
-                        evalUtil xs newStr
-                    | "inverse" ->
+                match e with 
+                | Num(_) -> ("",false)
+                | Element(_) -> ("",false)
+                | Operation(_) -> ("",false)
+                | Group(Operation(op),nums) ->
+                    match res, str with
+                    | [], "" ->
                         match invElems with
                         | Some(invElems) ->
-                            let elem = fst(invElems[0])
-                            let newStr = str + toAdd + $"{elem} is an element with no inverse.\n"
-                            evalUtil xs newStr
-                        | _ -> failwith "invalid inverse implementation."
-                    | "associative" ->
-                        let newStr = str + toAdd + "It is not associative.\n"
-                        evalUtil xs newStr
-                    | _ -> failwith "invalid result array"
-                else
-                    evalUtil xs str
+                            let ret = $"%A{nums} is a group under {op} because\n 
+                            It is closed under {op}\n
+                            The identity element is {id}\n
+                            Every element has an inverse: {invElems} \n
+                            {op} is associative."
+                            (ret, true)
+                        | _ -> failwith "inverses not implemented correctly"
+                    | [], _ -> (str,false)
+                    | (x,s)::xs, _ ->
+                        if not x then
+                            let toAdd = if str.Length = 0 then $"%A{nums} is not a group under {op} because:\n" else ""
+                            match s with
+                            | "closed" ->
+                                match e1,e2 with
+                                | Some(e1), Some(e2) ->
+                                    let n1 = e1
+                                    let n2 = e2
+                                    let sFormat = 
+                                        match op with
+                                        | "+" -> $"{n1} + {n2} = {n1 + n2}"
+                                        | "-" -> $"{n1} - {n2} = {n1 - n2}"
+                                        | "*" -> $"{n1} * {n2} = {n1 * n2}"
+                                        | "/" -> $"{n1} / {n2} = {n1 / n2}"
+                                        | _ ->
+                                            let numToModBy = float(op[2])
+                                            $"({n1} + {n2}) %% {numToModBy} = {(n1 + n2) % numToModBy}"
+                                    let newStr = str + toAdd + $"It is not closed. Notice that {n1},{n2} are in %A{nums}, but {sFormat} is not in %A{nums}.\n"
+                                    numberSetUtil xs newStr
+                                | _, _ -> failwith "invalid closure implementation."
+                            | "identity" ->
+                                let newStr = str + toAdd + "It contains no identity element.\n"
+                                numberSetUtil xs newStr
+                            | "inverse" ->
+                                match invElems with
+                                | Some(invElems) ->
+                                    let elem = fst(invElems[0])
+                                    let newStr = str + toAdd + $"{elem} is an element with no inverse.\n"
+                                    numberSetUtil xs newStr
+                                | _ -> failwith "invalid inverse implementation."
+                            | "associative" ->
+                                let newStr = str + toAdd + "It is not associative."
+                                evalUtil xs newStr
+                            | _ -> failwith "invalid result array"
+                        else
+                            numberSetUtil xs str
+                    | Group (Element (_), _) -> failwith "Not Implemented"
 
-        evalUtil res str
-    | Group(_, _) -> failwith "Not Implemented"
+            numberSetUtil e
+
+        | Elements(e) ->
+            let ret = $"%A{e} is a group under {op} because\n 
+                It is closed under {op}\n
+                The identity element is {id}\n
+                Every element has an inverse. \n
+                {op} is associative."
+            (ret, true)
+
+    let op, set = e
+    evalUtil op set e
