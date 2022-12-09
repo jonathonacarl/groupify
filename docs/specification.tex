@@ -34,6 +34,7 @@
   basicstyle=\ttfamily,
   mathescape
 }
+\usepackage{longtable}
 % This will set LaTeX to look for figures in the same directory as the .tex file
 \graphicspath{.} % The dot means current directory.
 
@@ -106,36 +107,83 @@ The technical principles which underpin the design are separated into parsing an
 \newpage
 \section{Examples}
 
+Note that each example shown below can be tested directly in the Groupify repository. To run each test, use
 \begin{verbatim}
-        dotnet run "{0,1,2,3,4,} +%5"
+    dotnet run ../GroupifyTest/examples/example-<example number>.groupify
+\end{verbatim}
+at the command line. \\
+
+
+\textbf{1.} \begin{verbatim}
+        dotnet run "{0,1,2,3,4} +%5" --verbose
+        "
+        Numbers [Num 0.0; Num 1.0; Num 2.0; Num 3.0; Num 4.0] is a group under +%5 because:
+                            
+        It is closed under +%5.
+                            
+        The identity element is 0.
+                            
+        Every element has an inverse: [(2, 3); (1, 4); (0, 0)].
+                            
+        +%5 is associative.
+
+        "
+\end{verbatim}
+
+\textbf{2.} \begin{verbatim}
+        dotnet run "Z +" --verbose
+        "
+        "Z" is a group under + because:
+
+        It is closed under +.
+
+        The identity element is 0.
+
+        Every element has an inverse.
+                
+        + is associative.
+
+        "
+\end{verbatim}
+
+\textbf{3.}\begin{verbatim}
+        dotnet run "{-1,1} *"
         true
 \end{verbatim}
 
-\begin{verbatim}
-        dotnet run "{0,1,2,3,} +%4"
-        true
+\textbf{4.} \begin{verbatim}
+        dotnet run "{1,2,3} /" --verbose
+        "
+        Numbers [Num 1.0; Num 2.0; Num 3.0] is not a group under / because:
+        
+        It is not closed. Notice that 1,2 are in Numbers [Num 1.0; Num 2.0; Num 3.0], 
+        but 1 / 2 = 0.5 is not in Numbers [Num 1.0; Num 2.0; Num 3.0].
+        
+        It contains no identity element.
+        
+        1 is an element with no inverse.
+        
+        It is not associative."
+\end{verbatim}
+\newpage
+\textbf{5.} \begin{verbatim}
+        dotnet run "{1,2,3,4} -" --verbose
+        "
+        Numbers [Num 1.0; Num 2.0; Num 3.0; Num 4.0] is not a group under - because:
+        
+        It is not closed. Notice that 1,1 are in Numbers [Num 1.0; Num 2.0; Num 3.0;
+        Num 4.0], but 1 - 1 = 0 is not in Numbers [Num 1.0; Num 2.0; Num 3.0; Num 4.0].
+
+        It contains no identity element.
+
+        4 is an element with no inverse.
+
+        It is not associative."
 \end{verbatim}
 
-\begin{verbatim}
-        dotnet run "{-1,0,1,} +%3"
+\textbf{6.} \begin{verbatim}
+        dotnet run "R* +"
         false
-\end{verbatim}
-
-\textit{Note:} We don't currently have support for the following examples below. We hope to have this functionality soon.
-
-\begin{verbatim}
-        dontet run "{1,2,3} /" 
-        false
-\end{verbatim}
-
-\begin{verbatim}
-        dotnet run "{1,2,3,4} -"
-        false
-\end{verbatim}
-
-\begin{verbatim}
-        dotnet run "{1,2,3,...} +"
-        true
 \end{verbatim}
 
 \section{Language Concepts}
@@ -145,54 +193,86 @@ The user needs to understand how to convert the input into a useful form. On the
 Evaluation consists of verifying the four tenets of a group: (1) closure, (2) identity, (3) inverses, and (4) associativity. If any of these verifications fail, then we conclude that the input does not form a valid group. When all four verifications pass, we say that the provided set and operation form a group.
 
 \section{Formal Syntax}
-
-\begin{lstlisting}
-    <expr>      :== <num> 
-                | <operation> 
-                | <group>
+\begin{center} % just for vertical spacing and killing indent
+    \begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}r@{}}
+        \begin{lstlisting}
+        <expr>      :== 
+                    | <num>
+                    | <element>
+                    | <operation> 
+                    | <group>
+        
+        <num>       :== $\alpha \in \mathbb{Z}$
     
-    <num>       :== $\beta \in \mathbb{N}$
-    
-    <operation> :== $\alpha \in \gamma$
-    
-    <group>     :== <operation><expr>$^{+}$
-\end{lstlisting}
-
-where $\gamma$ is the set of possible operations and \texttt{expr}$^+$ is one or more expressions.
+        <element>   :== $\beta$
+        
+        <operation> :==
+                    | +%$n$ for some $n \in \mathbb{N}$
+                    | +
+                    | -
+                    | $\cdot$
+                    | \
+        
+        <group>     :== <operation><ExprSet>
+    \end{lstlisting} & \begin{lstlisting}
+        <ExprSet>   :== 
+                    | <Integers>
+                    | <Rationals>
+                    | <Reals> 
+                    | <Complex>
+                    | <Numbers>
+                    | <Elements>
+        
+        <Integers>  :== $\mathbb{Z}$
+        <Rationals> :== $\mathbb{Q}$
+        <Reals>     :== $\mathbb{R}$
+        <Complex>   :== $\mathbb{C}$
+        <Numbers>   :== $\{a, b, \cdots z \} \mid a, \dots, z \in \mathbb{Z}$
+        <Elements>  :== $\alpha \in G$
+        
+    \end{lstlisting}
+    \end{tabular*}
+\end{center}
 
 \section{Semantics}
 
 \begin{center}
-    \begin{tabular}{p{1in}|p{1in}|p{1in}|p{1in}|p{1in}}
+    \begin{longtable}{p{1in}|p{1in}|p{1in}|p{1in}|p{1in}}
         \centering \textbf{Syntax} & \centering \textbf{Abstract Syntax} & \centering \textbf{Type} & \centering \textbf{Prec./Assoc.} & \centering \textbf{Meaning} & \hline
         
-        \centering \texttt{num} & \centering \texttt{num of int} & \centering \texttt{int} & \centering n/a & \centering \texttt{num} is a primitive. We represent integers using 32 bit F\# ints (\texttt{Int32}). & \hline
+        \centering \texttt{num} & \centering \texttt{num of int} & \centering \texttt{int} & \centering n/a & \centering \texttt{num} is a primitive. We represent \texttt{num} using 32 bit F\# ints (\texttt{Int32}). & \hline
+
+        \centering \texttt{element} & \centering \texttt{element of int*int*} \\ \texttt{string} & \centering \texttt{int*int*}\\ \texttt{string} & \centering n/a & \centering \texttt{element} is a primitive. We represent \texttt{element} using a F\# 3 tuple \texttt{int}*\texttt{int}*\texttt{string}. & \hline
         
         \centering \texttt{operation} & \centering \texttt{operation of string * string * int} & \centering \texttt{string * string * int} & \centering n/a & \centering \texttt{operation} is a primitive. We represent \texttt{operations} using F\# tuples (\texttt{string * string * int}). & \hline
         
-        \centering \texttt{group} & \centering \texttt{group of expr * expr list} & \centering \texttt{expr * expr list} & \centering n/a & \centering \texttt{group} is a primitive. We represent \texttt{groups} using F\# tuples (\texttt{string * string * int}). & \hline
-    \end{tabular}
+        \centering \texttt{group} & \centering \texttt{group of expr * expr list} & \centering \texttt{expr * ExprSet} & \centering n/a & \centering \texttt{group} is a primitive. We represent \texttt{groups} using F\# tuples (\texttt{string * string * int}). & \hline
+
+        \centering \texttt{Integers} & \centering \texttt{Integers of string} & \centering \texttt{string} & \centering n/a & \centering The \texttt{Integers} are a primitive type of \texttt{ExprSet}. We represent the \texttt{Integers} using a F\# \texttt{string}. & \hline
+
+        \centering \texttt{Rationals} & \centering \texttt{Rationals of string} & \centering \texttt{string} & \centering n/a & \centering The \texttt{Rationals} are a primitive type of \texttt{ExprSet}. We represent the \texttt{Rationals} using a F\# \texttt{string}. & \hline
+
+        \centering \texttt{Reals} & \centering \texttt{Reals of string} & \centering \texttt{string} & \centering n/a & \centering The \texttt{Reals} are a primitive type of \texttt{ExprSet}. We represent the \texttt{Reals} using a F\# \texttt{string}. & \hline
+
+        \centering \texttt{Complex} & \centering \texttt{Complex of string} & \centering \texttt{string} & \centering n/a & \centering The \texttt{Complex} numbers are a primitive type of \texttt{ExprSet}. We represent the \texttt{Complex} numbers using a F\# \texttt{string}. & \hline
+
+        \centering \texttt{Numbers} & \centering \texttt{Numbers of Expr list} & \centering \texttt{Expr list} & \centering n/a & \centering \texttt{Numbers} are a primitive type of \texttt{ExprSet}. We represent \texttt{Numbers} using a F\# \texttt{Expr list}. & \hline
+
+        \centering \texttt{Elements} & \centering \texttt{Elements of Expr list} & \centering \texttt{Expr list} & \centering n/a & \centering \texttt{Elements} are a primitive type of \texttt{ExprSet}. We represent \texttt{Elements} using a F\# \texttt{Expr list}. & \hline
+        
+    \end{longtable}
 \end{center}
 
 \section{Remaining Work}
 
 Here is a brief checklist of the things we have to complete:
 \begin{itemize}
-    \item[1.] Correct parser to remove comma at the end of the inputted set:
+    
+    \item[1.] Add support for arbitrary elements (not just numbers). That is, we hope to provide support for the following example:
     
     \begin{verbatim}
-        dotnet run "{0,1,2,3} +%4"
-        true
-\end{verbatim}
-
-    \item[2.] Add support for $+, -, \cdot, /$ operations.
-    
-    \item[3.] Add support for infinite sets: $\mathbb{Z}, \mathbb{Q}, \mathbb{R}, \mathbb{C}$.
-    
-    \item[4.] Add support for arbitrary elements (not just numbers). That is, we hope to provide support for the following example:
-    
-    \begin{verbatim}
-        dotnet run "{e, a, b}: e.e = e, e.a = a, e.b = b, a.e = a, b.e = b, a.b = e, b.a = e"
+        dotnet run "{e, a, b}: e.e = e, e.a = a, e.b = b,
+        a.e = a, b.e = b, a.b = e, b.a = e"
         true
     \end{verbatim}
     \vspace{-0.5cm}
@@ -211,7 +291,7 @@ Here is a brief checklist of the things we have to complete:
     \end{tabular}
 \end{center}
     
-    \item[] Evaluating this table would be rather straightforward: in a sense, any set combined with a binary operation forms a group if this tables is a \textit{Latin square}. Evaluation would verify that the provided table is a Latin square.
+    \item[] Evaluating this table would be rather straightforward: in a sense, any set combined with a binary operation forms a group if this table is a \textit{Latin square}. Evaluation would verify that the provided table is a Latin square.
     
 \end{itemize}
 
