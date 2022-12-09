@@ -5,6 +5,7 @@ open System.IO
 [<EntryPoint>]
 let main argv = 
 
+    // toggle verbose on with --v (--verbose) flag
     let verbose = 
         match argv.Length with
         | 1 -> 
@@ -20,11 +21,17 @@ let main argv =
             printfn "usage: dotnet run \"<set> <operation>\" --verbose (optional)"
             printfn "ex: \"{0,1,2,3,4} +%%5\" "
             exit 1
-
-    // let input = argv[0]
-
-    let file = argv[0]
-    let input = File.ReadAllText file
+    
+    // parse from file or directly from CLI
+    let i =
+        try 
+            File.ReadAllText argv[0]
+        with
+        | :? FileNotFoundException -> 
+            printfn $"file not found: parsing again...\n"
+            "file not found"
+    
+    let input = if i.Equals("file not found") then argv[0] else i
 
     let ast = parse input
 
