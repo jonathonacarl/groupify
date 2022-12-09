@@ -14,6 +14,7 @@
     <Compile Include="Identity.fs" />
     <Compile Include="Inverses.fs" />
     <Compile Include="Associative.fs" />
+    <Compile Include="Diagnostic.fs" />
     <Compile Include="Evaluator.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
