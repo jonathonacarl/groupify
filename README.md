@@ -1,0 +1,12 @@
+### Groupify
+
+* Groupify is programming language which determines if a provided set and binary operation form a group.
+
+* The group axioms that the set and binary operation must satisfy are
+  
+  1. Closure
+  2. (Unique) Identity
+  3. (Unique) Inverses
+  4. Associativity
+  
+* Given a valid set and binary operation, Groupify returns ```true``` if the set forms a group under the binary operation, and ```false``` otherwise.
