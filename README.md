@@ -10,3 +10,12 @@
   4. Associativity
   
 * Given a valid set and binary operation, Groupify returns ```true``` if the set forms a group under the binary operation, and ```false``` otherwise.
+
+* Usage:
+ 
+ ```
+ cd code/backend/Groupify
+ dotnet build
+ dotnet run "{0,1,2,3,4} +%5"
+ dotnet run ../GroupifyTest/examples/example-<example number>.groupify
+ ```
