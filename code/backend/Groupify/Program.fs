@@ -7,8 +7,7 @@ let main argv =
 
     if argv.Length <> 1 then
         printfn "usage: dotnet run \"<set> <operation>\" "
-        printfn "ex: \"{0,1,2,3,4,} +%%5\" "
-        printfn "Note: please include comma after last element in set."
+        printfn "ex: \"{0,1,2,3,4} +%%5\" "
         exit 1
 
     let file = argv[0]
