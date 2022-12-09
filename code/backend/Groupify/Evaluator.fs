@@ -42,32 +42,174 @@ let evaluator e =
     let rec evalUtil e set op = 
         match set with
         | Integers(z) ->
-            let ret = $"%A{z} is a group under {op} because\n 
-                It is closed under {op}\n
-                The identity element is 1.\n
-                Every element has an inverse.\n
-                {op} is associative."
+            let ret = 
+                match op with
+                | "+" -> 
+                    $"""
+                    %A{z.ToString()} is a group under {op} because:
+
+                    It is closed under {op}.
+
+                    The identity element is 0.
+
+                    Every element has an inverse.
+                    
+                    {op} is associative.
+
+                    """
+                | _ -> 
+                    $"""
+                    %A{z.ToString()} is not a group under {op} because not every element has an inverse.
+
+                    """ 
             (ret, true)
         | Rationals(q) ->
-            let ret = $"%A{q} is a group under {op} because\n 
-                It is closed under {op}\n
-                The identity element is 1.\n
-                Every element has an inverse.\n
-                {op} is associative."
+            let ret = 
+
+                match q with
+                    | "Q*" -> 
+
+                        match op with
+                        | "*" -> 
+                            $"""
+                            %A{q.ToString()} is a group under {op} because:
+
+                            It is closed under {op}.
+
+                            The identity element is 1.
+
+                            Every element has an inverse.
+
+                            {op} is associative.
+
+                            """
+                        | _ -> 
+                            $"""
+                            %A{q.ToString()} is not a group under {op} because it is not closed.   
+
+                            """
+                    | "Q" -> 
+
+                        match op with
+                        | "+" ->
+                            $"""
+                            %A{q.ToString()} is a group under {op} because:
+
+                            It is closed under {op}.
+
+                            The identity element is 0.
+
+                            Every element has an inverse.
+
+                            {op} is associative.
+
+                            """
+                        | _ ->
+                            $"""
+                            %A{q.ToString()} is not a group under {op} 0 does not have an inverse.
+
+                            """
+                    | _ ->
+                        $"""
+                        parser failed.
+
+                        """
             (ret, true)
         | Reals(r) ->
-            let ret = $"%A{r} is a group under {op} because\n 
-                It is closed under {op}\n
-                The identity element is 1.\n
-                Every element has an inverse. \n
-                {op} is associative."
+            let ret =
+                match r with
+                | "R*" -> 
+                    match op with
+                    | "*" -> 
+                        $"""
+                        %A{r.ToString()} is a group under {op} because:
+
+                        It is closed under {op}.
+
+                        The identity element is 1.
+
+                        Every element has an inverse.
+
+                        {op} is associative.
+
+                        """
+                    | _ -> 
+                        $"""
+                        %A{r.ToString()} is not a group under {op} because it is not closed.
+
+                        """
+                | "R" ->
+                    match op with
+                    | "+" ->
+                        $"""
+                        %A{r.ToString()} is a group under {op} because:
+
+                        It is closed under {op}.
+
+                        The identity element is 0.
+
+                        Every element has an inverse.
+
+                        {op} is associative.
+
+                        """
+                    | _ -> 
+                        $"""
+                        %A{r.ToString()} is not a group under {op} because 0 does not have an inverse.
+
+                        """
+
+                | _ -> 
+                    $"""
+                    parser failed.
+
+                    """
+
             (ret, true)
         | Complex(c) ->
-            let ret = $"%A{c} is a group under {op} because\n 
-                It is closed under {op}\n
-                The identity element is 1 + 0i.\n
-                Every element has an inverse.\n
-                {op} is associative."
+            let ret = 
+                match c with
+                | "C*" ->
+                    match op with
+                    | _ -> 
+                        $"""
+                        %A{c.ToString()} is a group under {op} because:
+
+                        It is closed under {op}.
+
+                        The identity element is 1.
+
+                        Every element has an inverse.
+
+                        {op} is associative.
+
+                        """
+                | "C" -> 
+                    match op with
+                    | "+" -> 
+                        $"""
+                        %A{c.ToString()} is a group under {op} because:
+
+                        It is closed under {op}.
+
+                        The identity element is 0.
+
+                        Every element has an inverse.
+
+                        {op} is associative.
+
+                        """
+                    | _ -> 
+                        $"""
+                        %A{c.ToString()} is not a group under {op} because it is not closed.
+
+                        """
+                | _ -> 
+                    $"""
+                    parser failed.
+
+                    """
+
             (ret, true)
         | Numbers(n) ->
             

@@ -26,18 +26,30 @@ let pintegers = pchar 'Z' |>> string |>> Integers <!> "pintegers"
 (*
  * Parse the rational numbers.
  *)
-let prationals = pchar 'Q' |>> string |>> Rationals <!>"prationals"
+let prationalsnonzero = pseq (pchar 'Q') (pchar '*') (fun(a,b) -> string a + string b) |>> Rationals <!> "prationalsnonzero"
+
+let prationalszero = pchar 'Q' |>> string |>> Rationals <!> "prationalszero"
+
+let prationals = prationalsnonzero <|> prationalszero <!> "prationals"
 
 (*
  * Parse the real numbers.
  *)
-let preal = pchar 'R' |>> string |>> Reals <!> "preal"
+let prealnonzero = pseq (pchar 'R') (pchar '*') (fun(a,b) -> string a + string b) |>> Reals <!> "prealnonzero"
 
+let prealzero = pchar 'R' |>> string |>> Reals <!> "prealzero"
+
+let preal = prealnonzero <|> prealzero <!> "preal"
 
 (*
  * Parse the complex numbers.
  *)
-let pcomplex = pchar 'C' |>> string |>> Complex <!> "pcomplex"
+
+let pcomplexnonzero = pseq (pchar 'C') (pchar '*') (fun(a,b) -> string a + string b) |>> Complex <!> "pcomplexnonzero"
+
+let pcomplexzero = pchar 'C' |>> string |>> Complex <!> "pcomplexzero"
+
+let pcomplex = pcomplexzero <|> pcomplexzero <!> "pcomplex"
 
 (*
  * Parse a single number, either negative or positive.

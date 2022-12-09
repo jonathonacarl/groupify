@@ -1,7 +1,6 @@
 namespace GroupifyTest
 
 open System.IO
-open System
 open Microsoft.VisualStudio.TestTools.UnitTesting
 open AST
 open Parser
@@ -15,6 +14,7 @@ type TestClass () =
     member this.TestOne () =
 
         let file = "./examples/example-1.groupify"
+
         let input = File.ReadAllText file
 
         let resultParse = parse input
@@ -87,6 +87,91 @@ type TestClass () =
         let resultEvaluationStr, resultEvaluation = evaluator resultAST
 
         let expectedEvaluationStr = "Numbers [Num -1.0; Num 0.0; Num 1.0] is a not group under +%3 because:\n\nIt is not closed. Notice that -1,-1 are in Numbers [Num -1.0; Num 0.0; Num 1.0], but (-1 + -1) % 3 = -2 is not in Numbers [Num -1.0; Num 0.0; Num 1.0].\n"
+
+        let expectedEvaluation = false
+
+        Assert.AreEqual(expectedParse, resultParse)
+        Assert.AreEqual(expectedAST, resultAST)
+        Assert.AreEqual(expectedEvaluationStr, resultEvaluationStr)
+        Assert.AreEqual(expectedEvaluation, resultEvaluation)
+
+    [<TestMethod>]
+    member this.TestFour () =
+
+        let file = "./examples/example-4.groupify"
+        let input = File.ReadAllText file
+
+        let resultParse = parse input
+
+        let expectedParse = "Some(Group (Operation(\"/\"), Numbers [Num 1.0; Num 2.0; Num 3.0))"
+
+        let resultAST = 
+            match resultParse with
+            | Some ast -> ast
+            | None -> Num 0
+        
+        let expectedAST = "Group (Operation(\"/\"), Numbers [Num 1.0; Num 2.0; Num 3.0)"
+
+        let resultEvaluationStr, resultEvaluation = evaluator resultAST
+
+        let expectedEvaluationStr = "Numbers [Num 1.0; Num 2.0; Num 3.0] is a not group under / because:\n\nIt is not closed. Notice that 1,2 are in Numbers [Num 1.0; Num 2.0; Num 3.0], but 1 / 2 = 0.5 is not in Numbers [Num 1.0; Num 2.0; Num 3.0].\n\nIt contains no identity element.\n\n1 is an element with no inverse.\n\nIt is not associative."
+
+        let expectedEvaluation = false
+
+        Assert.AreEqual(expectedParse, resultParse)
+        Assert.AreEqual(expectedAST, resultAST)
+        Assert.AreEqual(expectedEvaluationStr, resultEvaluationStr)
+        Assert.AreEqual(expectedEvaluation, resultEvaluation)
+
+    
+    [<TestMethod>]
+    member this.TestFive () =
+
+        let file = "./examples/example-5.groupify"
+        let input = File.ReadAllText file
+
+        let resultParse = parse input
+
+        let expectedParse = "Some(Group (Operation(\"-\"), Numbers [Num 1.0; Num 2.0; Num 3.0; Num 4.0))"
+
+        let resultAST = 
+            match resultParse with
+            | Some ast -> ast
+            | None -> Num 0
+        
+        let expectedAST = "Group (Operation(\"-\"), Numbers [Num 1.0; Num 2.0; Num 3.0; Num 4.0)"
+
+        let resultEvaluationStr, resultEvaluation = evaluator resultAST
+
+        let expectedEvaluationStr = "Numbers [Num 1.0; Num 2.0; Num 3.0; Num 4.0] is a not group under - because:\n\nIt is not closed. Notice that 1,1 are in Numbers [Num 1.0; Num 2.0; Num 3.0; Num 4.0], but 1 - 1 = 0 is not in Numbers [Num 1.0; Num 2.0; Num 3.0; Num 4.0].\n\nIt contains no identity element.\n\n4 is an element with no inverse.\n\nIt is not associative."
+
+        let expectedEvaluation = false
+
+        Assert.AreEqual(expectedParse, resultParse)
+        Assert.AreEqual(expectedAST, resultAST)
+        Assert.AreEqual(expectedEvaluationStr, resultEvaluationStr)
+        Assert.AreEqual(expectedEvaluation, resultEvaluation)
+
+    [<TestMethod>]
+    member this.TestSix () =
+
+        let file = "./examples/example-6.groupify"
+        let input = File.ReadAllText file
+
+        let resultParse = parse input
+
+        let expectedParse = "Some(Group (Operation(\"+\"), \"Z\")"
+
+        let resultAST = 
+            match resultParse with
+            | Some ast -> ast
+            | None -> Num 0
+        
+        let expectedAST = "Group (Operation(\"+\"), \"Z\")"
+
+        let resultEvaluationStr, resultEvaluation = evaluator resultAST
+
+        let expectedEvaluationStr = "\"Z\" is a group under + because:\n\nIt is closed under +.\n\n The identity element is 0.\n\nEvery element has in inverse.\n\n+ is associative."
 
         let expectedEvaluation = false
 

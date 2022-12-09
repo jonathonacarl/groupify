@@ -11,6 +11,11 @@
     <Compile Include="../Groupify/Combinator.fs" />
     <Compile Include="../Groupify/AST.fs" />
     <Compile Include="../Groupify/Parser.fs" />
+    <Compile Include="../Groupify/Cartesian.fs" />
+    <Compile Include="../Groupify/Closure.fs" />
+    <Compile Include="../Groupify/Identity.fs" />
+    <Compile Include="../Groupify/Inverses.fs" />
+    <Compile Include="../Groupify/Associative.fs" />
     <Compile Include="../Groupify/Evaluator.fs" />
     <Compile Include="Tests.fs" />
     <Compile Include="Program.fs" />
