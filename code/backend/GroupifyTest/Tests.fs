@@ -13,7 +13,7 @@ type TestClass () =
     [<TestMethod>]
     member this.TestOne () =
 
-        let file = "./examples/example-1.groupify"
+        let file = "/Users/jonathoncarl/f22/cs334/cs334_project-jonathonacarl-sarahf64/code/backend/GroupifyTest/examples/example-1.groupify"
 
         let input = File.ReadAllText file
 
@@ -34,15 +34,15 @@ type TestClass () =
         
         let expectedEvaluation = true
 
-        Assert.AreEqual(expectedParse, resultParse)
-        Assert.AreEqual(expectedAST, resultAST)
-        Assert.AreEqual(expectedEvaluationStr, resultEvaluationStr)
-        Assert.AreEqual(expectedEvaluation, resultEvaluation)
+        Assert.AreEqual(resultParse, expectedParse)
+        Assert.AreEqual(resultAST, expectedAST)
+        Assert.AreEqual(resultEvaluationStr, expectedEvaluationStr)
+        Assert.AreEqual(resultEvaluation, expectedEvaluation)
 
     [<TestMethod>]
     member this.TestTwo () =
 
-        let file = "./examples/example-2.groupify"
+        let file = "/Users/jonathoncarl/f22/cs334/cs334_project-jonathonacarl-sarahf64/code/backend/GroupifyTest/examples/example-2.groupify"
         let input = File.ReadAllText file
 
         let resultParse = parse input
@@ -62,15 +62,15 @@ type TestClass () =
 
         let expectedEvaluation = true
 
-        Assert.AreEqual(expectedParse, resultParse)
-        Assert.AreEqual(expectedAST, resultAST)
-        Assert.AreEqual(expectedEvaluationStr, resultEvaluationStr)
-        Assert.AreEqual(expectedEvaluation, resultEvaluation)
+        Assert.AreEqual(resultParse, expectedParse)
+        Assert.AreEqual(resultAST, expectedAST)
+        Assert.AreEqual(resultEvaluationStr, expectedEvaluationStr)
+        Assert.AreEqual(resultEvaluation, expectedEvaluation)
 
     [<TestMethod>]
     member this.TestThree () =
 
-        let file = "./examples/example-3.groupify"
+        let file = "/Users/jonathoncarl/f22/cs334/cs334_project-jonathonacarl-sarahf64/code/backend/GroupifyTest/examples/example-3.groupify"
         let input = File.ReadAllText file
 
         let resultParse = parse input
@@ -90,15 +90,15 @@ type TestClass () =
 
         let expectedEvaluation = false
 
-        Assert.AreEqual(expectedParse, resultParse)
-        Assert.AreEqual(expectedAST, resultAST)
-        Assert.AreEqual(expectedEvaluationStr, resultEvaluationStr)
-        Assert.AreEqual(expectedEvaluation, resultEvaluation)
+        Assert.AreEqual(resultParse, expectedParse)
+        Assert.AreEqual(resultAST, expectedAST)
+        Assert.AreEqual(resultEvaluationStr, expectedEvaluationStr)
+        Assert.AreEqual(resultEvaluation, expectedEvaluation)
 
     [<TestMethod>]
     member this.TestFour () =
 
-        let file = "./examples/example-4.groupify"
+        let file = "/Users/jonathoncarl/f22/cs334/cs334_project-jonathonacarl-sarahf64/code/backend/GroupifyTest/examples/example-4.groupify"
         let input = File.ReadAllText file
 
         let resultParse = parse input
@@ -118,16 +118,16 @@ type TestClass () =
 
         let expectedEvaluation = false
 
-        Assert.AreEqual(expectedParse, resultParse)
-        Assert.AreEqual(expectedAST, resultAST)
-        Assert.AreEqual(expectedEvaluationStr, resultEvaluationStr)
-        Assert.AreEqual(expectedEvaluation, resultEvaluation)
+        Assert.AreEqual(resultParse, expectedParse)
+        Assert.AreEqual(resultAST, expectedAST)
+        Assert.AreEqual(resultEvaluationStr, expectedEvaluationStr)
+        Assert.AreEqual(resultEvaluation, expectedEvaluation)
 
     
     [<TestMethod>]
     member this.TestFive () =
 
-        let file = "./examples/example-5.groupify"
+        let file = "/Users/jonathoncarl/f22/cs334/cs334_project-jonathonacarl-sarahf64/code/backend/GroupifyTest/examples/example-5.groupify"
         let input = File.ReadAllText file
 
         let resultParse = parse input
@@ -147,15 +147,15 @@ type TestClass () =
 
         let expectedEvaluation = false
 
-        Assert.AreEqual(expectedParse, resultParse)
-        Assert.AreEqual(expectedAST, resultAST)
-        Assert.AreEqual(expectedEvaluationStr, resultEvaluationStr)
-        Assert.AreEqual(expectedEvaluation, resultEvaluation)
+        Assert.AreEqual(resultParse, expectedParse)
+        Assert.AreEqual(resultAST, expectedAST)
+        Assert.AreEqual(resultEvaluationStr, expectedEvaluationStr)
+        Assert.AreEqual(resultEvaluation, expectedEvaluation)
 
     [<TestMethod>]
     member this.TestSix () =
 
-        let file = "./examples/example-6.groupify"
+        let file = "/Users/jonathoncarl/f22/cs334/cs334_project-jonathonacarl-sarahf64/code/backend/GroupifyTest/examples/example-6.groupify"
         let input = File.ReadAllText file
 
         let resultParse = parse input
@@ -175,7 +175,7 @@ type TestClass () =
 
         let expectedEvaluation = false
 
-        Assert.AreEqual(expectedParse, resultParse)
-        Assert.AreEqual(expectedAST, resultAST)
-        Assert.AreEqual(expectedEvaluationStr, resultEvaluationStr)
-        Assert.AreEqual(expectedEvaluation, resultEvaluation)
+        Assert.AreEqual(resultParse, expectedParse)
+        Assert.AreEqual(resultAST, expectedAST)
+        Assert.AreEqual(resultEvaluationStr, expectedEvaluationStr)
+        Assert.AreEqual(resultEvaluation, expectedEvaluation)

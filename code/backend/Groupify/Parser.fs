@@ -98,12 +98,12 @@ let pnums = (pseq (pmany1 (pleft (pnum) (pchar ','))) (pnum) (fun (nums, num) ->
 (*
  * Parse the set.
  *)
-let pset = pbetween (pchar '{') (pchar '}') (pnums) <|> (pintegers <|> prationals <|> preal <|> pcomplex) <!> "set"
+let pset = pbetween (pchar '{') (pchar '}') (pnums) <|> (pintegers <|> prationals <|> preal <|> pcomplex) <!> "pset"
 
 (*
  * Parse the set and operation.
  *)
-let pgroup = pseq (pset) (pright pws1 poper) (fun (nums, oper) -> oper,nums) |>> Group <!> "group"
+let pgroup = pseq (pset) (pright pws1 poper) (fun (nums, oper) -> oper,nums) |>> Group <!> "pgroup"
 
 (*
  * Declare the expression parser implementation.

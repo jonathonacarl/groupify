@@ -14,9 +14,9 @@ open Diagnostic
 let evaluator e = 
     
     match e with
-    | Num(_) -> ("", false)
-    | Element(_) -> ("", false)
-    | Operation(_) -> ("", false)
+    | Num(_) -> ("invalid expression.", false)
+    | Element(_) -> ("invalid expression.", false)
+    | Operation(_) -> ("invalid expression.", false)
     | Group(op, set) ->
         let oper = 
             match op with
