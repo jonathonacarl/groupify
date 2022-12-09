@@ -31,7 +31,7 @@ let doEvaluation e op =
 let rec diagnostic e set op = 
     match set with
     | Integers(z) ->
-        let ret = 
+        let retStr, ret = 
             match op with
             | "+" -> 
                 $"""
@@ -45,15 +45,15 @@ let rec diagnostic e set op =
                 
                 {op} is associative.
 
-                """
+                """, true
             | _ -> 
                 $"""
                 %A{z.ToString()} is not a group under {op} because not every element has an inverse.
 
-                """ 
-        (ret, true)
+                """, false
+        (retStr, ret)
     | Rationals(q) ->
-        let ret = 
+        let retStr, ret  = 
 
             match q with
                 | "Q*" -> 
@@ -71,12 +71,12 @@ let rec diagnostic e set op =
 
                         {op} is associative.
 
-                        """
+                        """, true
                     | _ -> 
                         $"""
                         %A{q.ToString()} is not a group under {op} because it is not closed.   
 
-                        """
+                        """, false
                 | "Q" -> 
 
                     match op with
@@ -92,20 +92,20 @@ let rec diagnostic e set op =
 
                         {op} is associative.
 
-                        """
+                        """, true
                     | _ ->
                         $"""
                         %A{q.ToString()} is not a group under {op} 0 does not have an inverse.
 
-                        """
+                        """, false
                 | _ ->
                     $"""
                     parser failed.
 
-                    """
-        (ret, true)
+                    """, false
+        (retStr, ret)
     | Reals(r) ->
-        let ret =
+        let retStr, ret =
             match r with
             | "R*" -> 
                 match op with
@@ -121,12 +121,12 @@ let rec diagnostic e set op =
 
                     {op} is associative.
 
-                    """
+                    """, true
                 | _ -> 
                     $"""
                     %A{r.ToString()} is not a group under {op} because it is not closed.
 
-                    """
+                    """, false
             | "R" ->
                 match op with
                 | "+" ->
@@ -141,22 +141,22 @@ let rec diagnostic e set op =
 
                     {op} is associative.
 
-                    """
+                    """, true
                 | _ -> 
                     $"""
                     %A{r.ToString()} is not a group under {op} because 0 does not have an inverse.
 
-                    """
+                    """, false
 
             | _ -> 
                 $"""
                 parser failed.
 
-                """
+                """, false
 
-        (ret, true)
+        (retStr, false)
     | Complex(c) ->
-        let ret = 
+        let retStr, ret = 
             match c with
             | "C*" ->
                 match op with
@@ -172,7 +172,7 @@ let rec diagnostic e set op =
 
                     {op} is associative.
 
-                    """
+                    """, true
             | "C" -> 
                 match op with
                 | "+" -> 
@@ -187,19 +187,19 @@ let rec diagnostic e set op =
 
                     {op} is associative.
 
-                    """
+                    """, true
                 | _ -> 
                     $"""
                     %A{c.ToString()} is not a group under {op} because it is not closed.
 
-                    """
+                    """, false
             | _ -> 
                 $"""
                 parser failed.
 
-                """
+                """, false
 
-        (ret, true)
+        (retStr, ret)
     | Numbers(n) ->
         
         let (e1, e2, closed), (isIdentity, id), (invElems, inverse), associative = doEvaluation e op
@@ -275,7 +275,7 @@ let rec diagnostic e set op =
         numberSetUtil e res ""
 
     | Elements(e2) ->
-        let ret = 
+        let retStr, ret = 
             $"""
             %A{e2} is a group under {op} because:
 
@@ -284,7 +284,7 @@ let rec diagnostic e set op =
             The identity element is {id}.
             
             Every element has an inverse.
-            
+
             {op} is associative.
-            """
-        (ret, true)
+            """, true
+        (retStr, ret)

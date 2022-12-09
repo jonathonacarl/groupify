@@ -21,11 +21,12 @@ let main argv =
             printfn "ex: \"{0,1,2,3,4} +%%5\" "
             exit 1
 
-    let input = argv[0]
-    let ast = parse input
+    // let input = argv[0]
 
-    // let file = argv[0]
-    // let input = File.ReadAllText file
+    let file = argv[0]
+    let input = File.ReadAllText file
+
+    let ast = parse input
 
     match ast with
     | Some ast ->
