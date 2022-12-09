@@ -19,7 +19,6 @@ let main argv =
     | Some ast ->
         let str, res = evaluator ast
         printfn "%A" str
-        printfn "%A" ast
         0
     | None -> 
         printfn "Invalid program."
