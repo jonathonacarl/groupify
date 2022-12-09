@@ -48,7 +48,7 @@ let doper = pchar '/' |>> string |>> Operation <!> "doper"
 
 let poper = modoper <|> aoper <|> soper <|> moper <|> doper <!> "poper"
 
-let pnums = (pseq (pmany1 (pleft (pnum) (pchar ','))) (pnum) (fun (nums, num) -> num::nums)) |>> Numbers <!> "pnums"
+let pnums = (pseq (pmany1 (pleft (pnum) (pchar ','))) (pnum) (fun (nums, num) -> nums @ [num] )) |>> Numbers <!> "pnums"
 
 (*
  * Parse the set.

@@ -1,5 +1,6 @@
 ﻿open Parser
 open Evaluator
+open System.IO
 
 [<EntryPoint>]
 let main argv = 
@@ -10,12 +11,16 @@ let main argv =
         printfn "Note: please include comma after last element in set."
         exit 1
 
-    let ast = parse (argv[0])
+    let file = argv[0]
+    let input = File.ReadAllText file
+
+    let ast = parse input
 
     match ast with
     | Some ast ->
         let str, res = evaluator ast
         printfn "%A" str
+        printfn "%A" ast
         0
     | None -> 
         printfn "Invalid program."

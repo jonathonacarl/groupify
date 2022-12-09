@@ -359,11 +359,7 @@ let evaluator e =
                     | [], "" ->
                         match invElems with
                         | Some(invElems) ->
-                            let ret = $"%A{nums} is a group under {op} because\n 
-                            It is closed under {op}\n
-                            The identity element is {id}\n
-                            Every element has an inverse: {invElems} \n
-                            {op} is associative."
+                            let ret = $"%A{nums} is a group under {op} because:\n\nIt is closed under {op}\n\nThe identity element is {id}\n\nEvery element has an inverse: {invElems} \n\n{op} is associative."
                             (ret, true)
                         | _ -> failwith "inverses not implemented correctly"
                     | [], _ -> (str,false)

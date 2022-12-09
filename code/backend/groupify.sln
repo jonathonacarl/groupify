@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Groupify", "Groupify\Groupify.fsproj", "{16174DA4-E70C-4CCA-A566-F65A4C61C0EF}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GroupifyTest", "GroupifyTest\GroupifyTest.fsproj", "{D009C421-8A04-4A6D-A85B-E57F722FF418}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{16174DA4-E70C-4CCA-A566-F65A4C61C0EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16174DA4-E70C-4CCA-A566-F65A4C61C0EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16174DA4-E70C-4CCA-A566-F65A4C61C0EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16174DA4-E70C-4CCA-A566-F65A4C61C0EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D009C421-8A04-4A6D-A85B-E57F722FF418}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D009C421-8A04-4A6D-A85B-E57F722FF418}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D009C421-8A04-4A6D-A85B-E57F722FF418}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D009C421-8A04-4A6D-A85B-E57F722FF418}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
