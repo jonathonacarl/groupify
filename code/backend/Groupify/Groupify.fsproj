@@ -9,6 +9,11 @@
     <Compile Include="Combinator.fs" />
     <Compile Include="AST.fs" />
     <Compile Include="Parser.fs" />
+    <Compile Include="Cartesian.fs" />
+    <Compile Include="Closure.fs" />
+    <Compile Include="Identity.fs" />
+    <Compile Include="Inverses.fs" />
+    <Compile Include="Associative.fs" />
     <Compile Include="Evaluator.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
