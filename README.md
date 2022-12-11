@@ -1,6 +1,6 @@
 ### Groupify
 
-* Groupify is programming language which determines if a provided set and binary operation form a group.
+* Groupify is a programming language which determines if a provided set and binary operation form a group.
 
 * The group axioms that the set and binary operation must satisfy are
   
