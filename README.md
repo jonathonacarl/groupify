@@ -20,4 +20,4 @@
  dotnet run ../GroupifyTest/examples/example-<example number>.groupify
  ```
 
-View a presentation of Groupify here: https://drive.google.com/file/d/19ThJkqR28M6G0loOaMZ0rY8wxzEDNPpM/view?usp=share_link
+View a presentation of Groupify here: https://drive.google.com/file/d/17Rr_4B4T6z6T9lsXADZgCXEvz9WcQGv7/view?usp=sharing
