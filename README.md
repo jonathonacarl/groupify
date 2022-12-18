@@ -19,3 +19,5 @@
  dotnet run "{0,1,2,3,4} +%5"
  dotnet run ../GroupifyTest/examples/example-<example number>.groupify
  ```
+
+View a presentation of Groupify here: https://drive.google.com/file/d/19ThJkqR28M6G0loOaMZ0rY8wxzEDNPpM/view?usp=share_link
