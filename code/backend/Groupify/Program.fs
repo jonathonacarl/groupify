@@ -41,5 +41,5 @@ let main argv =
         if verbose then printfn "%A" str else printfn "%A" res
         0
     | None -> 
-        printfn "Invalid program."
+        printfn "Invalid program\n usage: dotnet run \"<set> <operation>\" --verbose (optional)"
         1
